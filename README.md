@@ -18,10 +18,10 @@ This project is designed to optimize the release process using Helm, Helmfile, a
 ### 📌 Eliminated Manual Testing Effort
 ✅ Automated Integration Tests – Replaced flaky manual testing with GitHub Actions for integration testing.  
 ✅ k6 Load & Stress Testing – Integrated k6 for performance testing.  
-✅ Unit & End-to-End Tests – Ensured code reliability using Jest (backend) and Cypress (frontend).  
+✅ Unit & End-to-End Tests – Ensured code reliability using k6.  
 
 ### 📌 Improved Release Confidence & Frequency
-✅ Versioned Deployments – Uses SHA-based image tagging (ghcr.io/myrepo/backend:${{ github.sha }}).  
+✅ Versioned Deployments – Uses SHA-based image tagging (`ghcr.io/myrepo/backend:${{ github.sha }}`).  
 ✅ Incremental Rollout Strategy – Deploys small changes safely without blocking engineers.  
 ✅ Blue-Green Deployment Strategy – Allows switching traffic seamlessly between versions.  
 
