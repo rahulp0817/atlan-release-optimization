@@ -1,0 +1,124 @@
+name: Continuous Deployment (Prod) with Advanced Rollback
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'database/**'
+
+jobs:
+  db-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Apply Database Migrations
+        run: |
+          cd database
+          ./migrate.sh
+
+  backend-deploy:
+    runs-on: ubuntu-latest
+    needs: [db-migrations]  # Ensure DB migrations run first
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Backend Image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/myrepo/backend:latest
+            ghcr.io/myrepo/backend:${{ github.sha }}
+
+      - name: Run Unit Tests
+        run: npm test --prefix backend
+
+      - name: Run API Tests (k6)
+        run: k6 run test.js
+
+      - name: Configure Kubernetes Cluster
+        uses: azure/k8s-set-context@v2
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Lint Helm Chart
+        run: helm lint myapp/charts/backend
+
+      - name: Helm Dry Run (Preview)
+        run: helm upgrade --install backend myapp/charts/backend --set image.tag=${{ github.sha }} --dry-run
+
+      - name: Deploy Backend via Helm
+        run: |
+          helm upgrade --install backend myapp/charts/backend \
+            --set image.tag=${{ github.sha }}
+
+      - name: Wait for Deployment Readiness
+        run: |
+          sleep 10
+          kubectl rollout status deployment backend --timeout=5m || exit 1
+
+      - name: Check Deployment Health
+        run: |
+          if ! kubectl get pods | grep backend | grep Running; then
+            echo "❌ Backend deployment failed!"
+            exit 1
+          fi
+
+      - name: Rollback on Failure
+        if: failure()
+        run: |
+          echo "⚠️ Deployment failed, rolling back..."
+          kubectl rollout undo deployment backend || echo "❌ Rollback failed!"
+
+  frontend-deploy:
+    runs-on: ubuntu-latest
+    needs: [backend-deploy]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/myrepo/frontend:latest
+            ghcr.io/myrepo/frontend:${{ github.sha }}
+
+      - name: Deploy Frontend via Helm
+        run: |
+          helm upgrade --install frontend myapp/charts/frontend \
+            --set image.tag=${{ github.sha }}
+
+  monitoring-alerts:
+    runs-on: ubuntu-latest
+    needs: [backend-deploy, frontend-deploy]
+    steps:
+      - name: Check Logs for Errors
+        run: |
+          if kubectl logs -l app=backend | grep -i "error"; then
+            echo "⚠️ Errors detected in logs!"
+            exit 1
+          fi
+      - name: Send Slack Notification on Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 Deployment failed! Check logs."}' ${{ secrets.SLACK_WEBHOOK }}

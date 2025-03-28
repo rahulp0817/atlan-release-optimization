@@ -1,0 +1,31 @@
+helmDefaults:
+  wait: true
+  timeout: 600 
+  retries: 3
+  createNamespace: true
+
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+releases:
+  - name: backend
+    namespace: my-namespace
+    chart: ./charts/backend
+    values:
+      - values-backend.yaml
+    installed: true
+
+  - name: frontend
+    namespace: my-namespace
+    chart: ./charts/frontend
+    values:
+      - values-frontend.yaml
+    installed: true
+
+  # - name: database
+  #   namespace: my-namespace
+  #   chart: bitnami/postgresql
+  #   values:
+  #     - values-database.yaml
+  #   installed: true
