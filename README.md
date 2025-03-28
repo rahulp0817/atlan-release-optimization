@@ -4,29 +4,29 @@ This project is designed to optimize the release process using Helm, Helmfile, a
 
 ## Completed Enhancements
 ### 📌 Optimized Helm Chart Deployment
-✅ Reduced Helm Chart Sync Time – Refactored the Helm chart to be modular, improving deployment speed.
-✅ Parallelized Helm Processes – Introduced parallel execution to prevent blocking engineers.
-✅ Helm Values Customization – Used environment-based Helm values to reduce redundancy.
+✅ Reduced Helm Chart Sync Time – Refactored the Helm chart to be modular, improving deployment speed.   
+✅ Parallelized Helm Processes – Introduced parallel execution to prevent blocking engineers.  
+✅ Helm Values Customization – Used environment-based Helm values to reduce redundancy.  
 
 ### 📌 Automated CI/CD Pipeline with Advanced Rollback
-✅ GitHub Actions for CI/CD – Set up an end-to-end pipeline for backend, frontend, and database.
-✅ Docker Build & Push – Uses docker/build-push-action to push images to GHCR.
-✅ Helm-Based Kubernetes Deployment – Deploys to the cluster via helm upgrade --install.
-✅ Health Checks & Readiness Probes – Ensures successful deployments before proceeding.
-✅ Auto Rollback on Failure – Implements kubectl rollout undo in case of failed deployments.
+✅ GitHub Actions for CI/CD – Set up an end-to-end pipeline for backend, frontend, and database.  
+✅ Docker Build & Push – Uses docker/build-push-action to push images to GHCR.  
+✅ Helm-Based Kubernetes Deployment – Deploys to the cluster via helm upgrade --install.  
+✅ Health Checks & Readiness Probes – Ensures successful deployments before proceeding.  
+✅ Auto Rollback on Failure – Implements kubectl rollout undo in case of failed deployments.  
 
 ### 📌 Eliminated Manual Testing Effort
-✅ Automated Integration Tests – Replaced flaky manual testing with GitHub Actions for integration testing.
-✅ k6 Load & Stress Testing – Integrated k6 for performance testing.
-✅ Unit & End-to-End Tests – Ensured code reliability using Jest (backend) and Cypress (frontend).
+✅ Automated Integration Tests – Replaced flaky manual testing with GitHub Actions for integration testing.  
+✅ k6 Load & Stress Testing – Integrated k6 for performance testing.  
+✅ Unit & End-to-End Tests – Ensured code reliability using Jest (backend) and Cypress (frontend).  
 
 ### 📌 Improved Release Confidence & Frequency
-✅ Versioned Deployments – Uses SHA-based image tagging (ghcr.io/myrepo/backend:${{ github.sha }}).
-✅ Incremental Rollout Strategy – Deploys small changes safely without blocking engineers.
-✅ Blue-Green Deployment Strategy – Allows switching traffic seamlessly between versions.
+✅ Versioned Deployments – Uses SHA-based image tagging (ghcr.io/myrepo/backend:${{ github.sha }}).  
+✅ Incremental Rollout Strategy – Deploys small changes safely without blocking engineers.  
+✅ Blue-Green Deployment Strategy – Allows switching traffic seamlessly between versions.  
 
 ### 📌 Added Monitoring and Health Checks
-✅ Added monitoring and health checks which in the deployments automatically triggered.
+✅ Added monitoring and health checks which in the deployments automatically triggered.  
 
 ## Getting Started
 
